@@ -1,0 +1,46 @@
+{
+  "name": "nodejs-microservice",
+  "version": "0.0.1",
+  "description": "A boilerplate microservice re",
+  "scripts": {
+    "lint": "node_modules/eslint/bin/eslint.js src/{,**/}*",
+    "postinstall": "if [ ! -f .env ]; then cp .env.sample .env; fi",
+    "start": "nodemon src/server.js",
+    "test-unit": "./node_modules/mocha/bin/mocha ./test/src/{,**/}*.spec.js",
+    "test-api": "./node_modules/mocha/bin/mocha ./test/api/*.spec.js --exit",
+    "test": "npm run lint && npm run test-unit && npm run test-api"
+  },
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "chai-http": "^4.0.0",
+    "css-loader": "^0.26.1",
+    "eslint": "^4.19.1",
+    "eslint-config-airbnb-base": "^12.1.0",
+    "eslint-plugin-chai-friendly": "^0.4.1",
+    "eslint-plugin-import": "^2.11.0",
+    "eslint-plugin-mocha": "^5.0.0",
+    "json-loader": "^0.5.4",
+    "mocha": "^5.2.0",
+    "sinon": "^5.0.7",
+    "sinon-chai": "^3.1.0",
+    "style-loader": "^0.13.1"
+  },
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "debug": "^3.1.0",
+    "dotenv": "^5.0.1",
+    "express": "^4.16.2",
+    "helmet": "^3.12.0",
+    "nodemon": "^1.14.12",
+    "osprey": "0.4.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "keywords": [
+    "microservice",
+    "boilerplate"
+  ],
+  "author": "michalmikolajczyk"
+}
