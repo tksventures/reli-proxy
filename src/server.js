@@ -3,12 +3,11 @@ const express = require('express');
 const debug = require('debug')('api');
 const { join } = require('path');
 const bodyParser = require('body-parser');
-const osprey = require('osprey');
 const helmet = require('helmet');
-const { registerRoutes } = require('./routes');
+const httpProxy = require('http-proxy')
+const kafka = require('./kafka');
 
 const app = express();
-const router = osprey.Router();
 
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -43,17 +42,18 @@ app.get('/robots.txt', (req, res, next) => {
   }
 });
 
-registerRoutes(router);
-const port = 3000 || process.env.PORT;
-osprey.loadFile(join(__dirname, '../raml', 'api.raml'))
-  .then((middleware) => {
-    app.use('/raml', middleware, router);
-    app.listen(port, () => {
-      debug('--------------------------');
-      debug('☕️ ');
-      debug('Starting Server');
-      debug(`Environment: ${process.env.NODE_ENV}`);
-      debug(`Express Listening at http://127.0.0.1:${port}`);
-    });
-  })
-  .catch(e => debug(e));
+const proxy = httpProxy.createProxyServer({ target: 'http://localhost:3000' });
+app.use((req, res) => {
+  redisClient.incrAsync('counter')
+    .then(() => proxy.web(req, res));
+
+});
+
+const port = 4000 || process.env.PORT;
+app.listen(port, () => {
+  debug('--------------------------');
+  debug('☕️ ');
+  debug('Starting Server');
+  debug(`Environment: ${process.env.NODE_ENV}`);
+  debug(`Express Listening at http://127.0.0.1:${port}`);
+});
