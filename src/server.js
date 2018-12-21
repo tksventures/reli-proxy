@@ -7,6 +7,8 @@ const helmet = require('helmet');
 const httpProxy = require('http-proxy')
 const kafka = require('./kafka');
 
+const producer = require('./kafka/producer');
+
 const app = express();
 
 // parse application/x-www-form-urlencoded
@@ -18,6 +20,12 @@ app.use(helmet({
   hsts: false,
   noSniff: false,
 }));
+
+const Prometheus = require('./prometheus');
+app.use(Prometheus.requestCounters);
+app.use(Prometheus.responseCounters);
+Prometheus.injectMetricsRoute(app);
+Prometheus.startCollection();
 
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -44,9 +52,8 @@ app.get('/robots.txt', (req, res, next) => {
 
 const proxy = httpProxy.createProxyServer({ target: 'http://localhost:3000' });
 app.use((req, res) => {
-  redisClient.incrAsync('counter')
-    .then(() => proxy.web(req, res));
-
+  kafka.handleRequest(req);
+  return proxy.web(req, res);
 });
 
 const port = 4000 || process.env.PORT;
