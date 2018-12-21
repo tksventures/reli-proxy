@@ -34,6 +34,10 @@ const handleMessage = (bufferData) => {
     .catch(debug);
 };
 
+const handleResponse = (res) => {
+
+};
+
 consumer
   .on('ready', () => {
     consumer.subscribe(['requests']);
