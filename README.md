@@ -1,26 +1,24 @@
-# Node.js Microservice Boilerplate
+# Node.js reverse-proxy with rate limiter and monitoring
 
-Fork this repo and build your microservice on top.
+## Test the microservice
 
-## Supporting
+```[bash]
+npm test
+```
 
-- [x] RAML
-- [x] Travis CI
-- [x] Docker
-- [x] Github templates
-- [x] Express.js API
-- [x] Static file server
-- [x] Example module
-- [x] Unit tests
-- [x] API tests
-- [x] ES lint
-- [ ] Automatic documentation
-- [ ] docker-compose
-- [ ] Kubernetes deployment files (via kompose)
-- [ ] Prometheus metrics observation & endpoint
-- [ ] Grafana dashboard
+## Start the microservice
 
-## Run with Docker
+```[bash]
+npm start
+```
+
+You can now access the Node.js app at [http://localhost:4000](http://localhost:4000)
+
+## Monitoring
+
+The metrics used by Prometheus for monitoring, are exposed at `http://localhost:4000/metrics`
+
+## WIP Run with Docker
 
 ### Build the image from the repository
 
@@ -34,20 +32,15 @@ docker build -t my-microservice .
 docker run -p 3000:3000 -it my-microservice
 ```
 
-## Local development
+## Supporting
 
-### Copy repository and install dependencies
-
-```[bash]
-git clone https://github.com/tksventures/nodejs-boilerplate.git my-microservice
-cd my-microservice
-npm i
-```
-
-### Start the microservice
-
-```[bash]
-npm start
-```
-
-You can now access the Node.js app at [http://localhost:3000](http://localhost:3000)
+- [x] Travis CI
+- [ ] Docker
+- [x] Github templates
+- [x] Unit tests
+- [x] API tests
+- [x] ES lint
+- [ ] docker-compose
+- [ ] Kubernetes deployment files (via kompose)
+- [x] Prometheus metrics observation & endpoint
+- [ ] Grafana dashboard

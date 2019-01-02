@@ -5,25 +5,24 @@ require('../../src/server');
 const { expect } = chai;
 chai.use(chaiHttp);
 const remoteServer = 'http://127.0.0.1';
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 4000;
 
-describe('/module1', function module1() {
+describe('/test', function module1() {
   this.timeout(10000);
   /*
-  * Test the /GET route
+  * Test the proxy
   */
-  describe('/GET', () => {
-    it('should return ok', (done) => {
+  describe('proxy', () => {
+    it('should forward ok', (done) => {
       setTimeout(() => {
         chai.request(`${remoteServer}:${port}`)
-          .get('/raml/module1')
+          .get('/test')
           .end((err, res) => {
             expect(res.status).to.eql(200);
-            // expect(res.body).to.be.a('string');
-            expect(res.text).to.be.eql('we got it');
+            expect(res.text).to.include('Response from back-end!');
             done();
           });
-      }, 5000);
+      }, 50);
     });
   });
 });

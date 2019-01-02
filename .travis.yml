@@ -1,13 +1,10 @@
 sudo: required
 services:
-  - docker
+  - redis-server
 language: node_js
 node_js:
   - "node"
 install:
-  - docker build -t $DOCKER_PROFILE/$DOCKER_IMAGE ./
+  - npm i
 script:
-  - docker run -p 127.0.0.1:3000:3000 --name $DOCKER_IMAGE --env-file .env.sample $DOCKER_PROFILE/$DOCKER_IMAGE npm test
-after_success:
-  - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
-  - docker push $DOCKER_PROFILE/$DOCKER_IMAGE
+  - npm test
