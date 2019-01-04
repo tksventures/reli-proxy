@@ -8,3 +8,6 @@ install:
   - docker build -t reli-proxy .
 script:
   - docker-compose up --abort-on-container-exit
+after_success:
+  - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+  - ./ci.sh
