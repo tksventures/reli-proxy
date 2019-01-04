@@ -39,6 +39,7 @@ const limiter = require('express-limiter')(app, client);
 const expireInSeconds = process.env.EXPIRE_IN_SECONDS || 15;
 const requestLimit = process.env.REQUEST_LIMIT || 99;
 const limitByIP = process.env.LIMIT_BY_IP ? 'connection.remoteAddress' : 'hostname';
+console.log(limitByIP);
 limiter({
   path: '*',
   method: 'all',
@@ -47,7 +48,7 @@ limiter({
   expire: 1000 * expireInSeconds,
 });
 
-const target = process.env.BACK_END || 'http://localhost:3000';
+const target = process.env.BACK_END_URL || 'http://localhost:3000';
 const proxy = httpProxy.createProxyServer({ target });
 app.use((req, res) => proxy.web(req, res));
 
@@ -60,7 +61,7 @@ app.listen(port, () => {
   debug(`Express Listening at http://127.0.0.1:${port}`);
 });
 
-if (!process.env.BACK_END) {
+if (!process.env.BACK_END_URL) {
   http.createServer((req, res) => {
     res.writeHead(200, { 'Content-Type': 'text/plain' });
     res.write(`Response from back-end!\n${JSON.stringify(req.headers, true, 2)}`);
