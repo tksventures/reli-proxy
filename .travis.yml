@@ -1,10 +1,10 @@
 sudo: required
 services:
-  - redis-server
+  - docker
 language: node_js
 node_js:
   - "node"
 install:
-  - npm i
+  - docker build -t reli-proxy .
 script:
-  - npm test
+  - docker-compose up --abort-on-container-exit

@@ -1,0 +1,21 @@
+app:
+  image: reli-proxy
+  links:
+    - redis
+  ports:
+    - 4000:4000
+  environment:
+    - REDIS_URL=redis://cache
+    - NODE_ENV=development
+    # - BACK_END_URL=http://localhost:3000
+    - PORT=4000
+    - EXPIRE_IN_SECONDS=15
+    - REQUEST_LIMIT=99
+    # - LIMIT_BY_IP=0
+  command:
+    'npm test'
+redis:
+  image: redis
+  container_name: cache
+  expose:
+    - 6379

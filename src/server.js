@@ -39,7 +39,6 @@ const limiter = require('express-limiter')(app, client);
 const expireInSeconds = process.env.EXPIRE_IN_SECONDS || 15;
 const requestLimit = process.env.REQUEST_LIMIT || 99;
 const limitByIP = process.env.LIMIT_BY_IP ? 'connection.remoteAddress' : 'hostname';
-console.log(limitByIP);
 limiter({
   path: '*',
   method: 'all',

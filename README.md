@@ -23,13 +23,21 @@ The metrics used by Prometheus for monitoring, are exposed at `http://localhost:
 ### Build the image from the repository
 
 ```[bash]
-docker build -t my-microservice .
+docker build -t reli-proxy .
 ```
 
 ### Start the docker container
 
+_Pass in Redis url in the environment variable_
+
 ```[bash]
-docker run -p 3000:3000 -it my-microservice
+docker run -p 4000:4000 --env-file ./.env.sample -it reli-proxy
+```
+
+### Run tests
+
+```[bash]
+docker-compose up --abort-on-container-exit
 ```
 
 ## Supporting
