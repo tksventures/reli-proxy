@@ -56,11 +56,9 @@ app.use('/', proxy(target)).listen(port, () => {
 });
 
 if (!process.env.BACK_END_URL) {
-  http
-    .createServer((req, res) => {
-      res.writeHead(200, { 'Content-Type': 'text/plain' });
-      res.write(`Response from back-end!\n${JSON.stringify(req.headers, true, 2)}`);
-      res.end();
-    })
-    .listen(3000);
+  http.createServer((req, res) => {
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    res.write(`Response from back-end!\n${JSON.stringify(req.headers, true, 2)}`);
+    res.end();
+  }).listen(3000);
 }
