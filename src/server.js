@@ -1,13 +1,11 @@
 require('dotenv').config();
-const express = require('express');
+const app = require('express')();
 const debug = require('debug')('api');
 const helmet = require('helmet');
 const http = require('http');
-const httpProxy = require('http-proxy');
+const proxy = require('express-http-proxy');
 const redis = require('redis');
 const Prometheus = require('./prometheus');
-
-const app = express();
 
 app.use(helmet({
   hsts: false,
@@ -48,11 +46,8 @@ limiter({
 });
 
 const target = process.env.BACK_END_URL || 'http://localhost:3000';
-const proxy = httpProxy.createProxyServer({ target });
-app.use((req, res) => proxy.web(req, res));
-
 const port = 4000 || process.env.PORT;
-app.listen(port, () => {
+app.use('/', proxy(target)).listen(port, () => {
   debug('--------------------------');
   debug('☕️ ');
   debug('Starting Server');
