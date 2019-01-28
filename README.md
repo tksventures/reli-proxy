@@ -43,12 +43,11 @@ docker-compose up --abort-on-container-exit
 ## Supporting
 
 - [x] Travis CI
-- [ ] Docker
+- [x] Docker image
 - [x] Github templates
 - [x] Unit tests
-- [x] API tests
 - [x] ES lint
-- [ ] docker-compose
-- [ ] Kubernetes deployment files (via kompose)
+- [x] docker-compose
+- [ ] Kubernetes deployment files
 - [x] Prometheus metrics observation & endpoint
 - [ ] Grafana dashboard
