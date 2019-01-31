@@ -17,23 +17,28 @@ app.use(helmet({
 app.use(Prometheus.requestCounters);
 app.use(Prometheus.responseCounters);
 Prometheus.injectMetricsRoute(app);
-
-limiter.removeTokens(1, (err, remainingRequests) => {
-  Prometheus.startCollection();
-})
+Prometheus.startCollection();
 
 app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,OPTIONS,DELETE');
-  res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-  res.setHeader('Access-Control-Allow-Credentials', true);
-
-  if (process.env.NODE_ENV !== 'production') {
-    res.setHeader('X-Robots-Tag', 'noindex, nofollow');
-  }
-
-  next();
+  limiter.removeTokens(1, (err, remainingRequests) => {
+    if (remainingRequests < 1) {
+      res.writeHead(429, {
+        'Content-Type': 'text/plain;charset=UTF-8',
+      });
+      res.end('429 Too Many Requests - your IP is being rate limited');
+    } else {
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,OPTIONS,DELETE');
+      res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+      res.setHeader('Access-Control-Allow-Credentials', true);
+      if (process.env.NODE_ENV !== 'production') {
+        res.setHeader('X-Robots-Tag', 'noindex, nofollow');
+      }
+      next();
+    }
+  });
 });
+
 
 const target = process.env.BACK_END_URL || 'http://localhost:3000';
 const port = 4000 || process.env.PORT;
