@@ -6,6 +6,12 @@ const http = require('http');
 const proxy = require('express-http-proxy');
 const redis = require('redis');
 const Prometheus = require('./prometheus');
+const RateLimit = require('express-rate-limit');
+const RedisStore = require('rate-limit-redis');
+const slowDown = require('express-slow-down');
+
+const redisServer = process.env.REDIS_URL || '';
+const client = redis.createClient(redisServer);
 
 app.use(helmet({
   hsts: false,
@@ -30,21 +36,34 @@ app.use((req, res, next) => {
   next();
 });
 
-const redisServer = process.env.REDIS_URL || '';
-const client = redis.createClient(redisServer);
-const limiter = require('express-limiter')(app, client);
-
 const expireInSeconds = process.env.EXPIRE_IN_SECONDS || 15;
 const requestLimit = process.env.REQUEST_LIMIT || 99;
-const limitByIP = process.env.LIMIT_BY_IP ? 'connection.remoteAddress' : 'hostname';
-limiter({
-  path: '*',
-  method: 'all',
-  lookup: limitByIP,
-  total: requestLimit,
-  expire: 1000 * expireInSeconds,
+const delayTimeInSeconds = process.env.DELAY_IN_SECONDS || 0.5;
+const speedLimiter = slowDown({
+  store: new RedisStore({
+    client,
+    prefix: 'sd: ', // setting prefix to avoid collision between delaying and rate limiting requests
+    expiry: expireInSeconds,
+  }),
+  windowMs: 1000 * expireInSeconds, // 1 minutes
+  delayAfter: requestLimit, // allow specified requests per window time
+  // begin adding specified delay time per request above maximum limit:
+  delayMs: 1000 * delayTimeInSeconds,
 });
 
+const rateLimiter = new RateLimit({
+  store: new RedisStore({
+    client,
+    prefix: 'rl: ', // setting prefix to avoid collision between delaying and rate limiting requests
+    expiry: expireInSeconds,
+  }),
+
+  windowMs: 1000 * expireInSeconds, // setting window size in ms(eg: 2000)
+  max: requestLimit, // limit each IP to specified requests per windowMs (e.g: 1)
+});
+
+app.use(speedLimiter);
+app.use(rateLimiter);
 const target = process.env.BACK_END_URL || 'http://localhost:3000';
 const port = 4000 || process.env.PORT;
 app.use('/', proxy(target)).listen(port, () => {
@@ -62,3 +81,4 @@ if (!process.env.BACK_END_URL) {
     res.end();
   }).listen(3000);
 }
+
