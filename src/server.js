@@ -39,27 +39,43 @@ app.use((req, res, next) => {
 const expireInSeconds = process.env.EXPIRE_IN_SECONDS || 15;
 const requestLimit = process.env.REQUEST_LIMIT || 99;
 const delayTimeInSeconds = process.env.DELAY_IN_SECONDS || 0.5;
+const limitByIP = process.env.LIMIT_BY_IP || 1;
+
+const redisKeyGenerator = function keyGenerator(req) {
+  if (parseInt(limitByIP, 10) === 1) {
+    return req.ip;
+  }
+
+  return 'ALL_IPS';
+};
+
 const speedLimiter = slowDown({
+  keyGenerator: redisKeyGenerator,
   store: new RedisStore({
     client,
-    prefix: 'sd: ', // setting prefix to avoid collision between delaying and rate limiting requests
+    // setting prefix to avoid collision between delaying and rate limiting requests
+    prefix: 'sd: ',
     expiry: expireInSeconds,
   }),
-  windowMs: 1000 * expireInSeconds, // 1 minutes
-  delayAfter: requestLimit, // allow specified requests per window time
+  windowMs: 1000 * expireInSeconds,
+  // allow specified requests per window time
+  delayAfter: requestLimit,
   // begin adding specified delay time per request above maximum limit:
   delayMs: 1000 * delayTimeInSeconds,
 });
 
 const rateLimiter = new RateLimit({
+  keyGenerator: redisKeyGenerator,
   store: new RedisStore({
     client,
-    prefix: 'rl: ', // setting prefix to avoid collision between delaying and rate limiting requests
+    // setting prefix to avoid collision between delaying and rate limiting requests
+    prefix: 'rl: ',
     expiry: expireInSeconds,
   }),
-
-  windowMs: 1000 * expireInSeconds, // setting window size in ms(eg: 2000)
-  max: requestLimit, // limit each IP to specified requests per windowMs (e.g: 1)
+  // setting window size in ms(eg: 2000)
+  windowMs: 1000 * expireInSeconds,
+  // limit each IP to specified requests per windowMs (e.g: 1)
+  max: requestLimit,
 });
 
 app.use(speedLimiter);
